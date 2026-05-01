@@ -69,20 +69,33 @@ export default function CheckoutPage() {
                     <p className="text-lg font-black">Pro Creator Plan</p>
                     <p className="text-sm text-muted-foreground font-medium">Monthly Subscription</p>
                   </div>
-                  <p className="text-2xl font-black">$29.00</p>
+                  <p className="text-2xl font-black">₹2,499.00</p>
                 </div>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm font-bold opacity-70">
                     <span>Subtotal</span>
-                    <span>$29.00</span>
+                    <span>₹2,499.00</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold opacity-70">
-                    <span>Tax (0%)</span>
-                    <span>$0.00</span>
+                    <span>GST (0%)</span>
+                    <span>₹0.00</span>
                   </div>
                   <div className="flex justify-between text-2xl font-black pt-4 border-t border-white/5">
                     <span>Total Due</span>
-                    <span className="text-primary">$29.00</span>
+                    <span className="text-primary">₹2,499.00</span>
+                  </div>
+                </div>
+
+                {/* Business Details */}
+                <div className="mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">Official Merchant Details</p>
+                  <div className="grid grid-cols-2 gap-4 text-[11px] font-bold">
+                    <div className="text-muted-foreground">Entity:</div>
+                    <div>Go Viral AI Solutions</div>
+                    <div className="text-muted-foreground">UPI ID:</div>
+                    <div className="text-primary tracking-tight">goviral.ai@okaxis</div>
+                    <div className="text-muted-foreground">Reg No:</div>
+                    <div>GV-AI-IND-2024</div>
                   </div>
                 </div>
               </CardContent>

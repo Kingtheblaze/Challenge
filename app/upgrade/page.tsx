@@ -170,7 +170,7 @@ export default function UpgradePage() {
                     <CardDescription className="text-base font-medium">Perfect for testing the waters.</CardDescription>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-6xl font-black">$0</span>
+                    <span className="text-6xl font-black">₹0</span>
                     <span className="text-xl text-muted-foreground font-bold">/mo</span>
                   </div>
                 </CardHeader>
@@ -209,7 +209,7 @@ export default function UpgradePage() {
                     <CardDescription className="text-base font-medium">Everything you need to dominate.</CardDescription>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-6xl font-black">$29</span>
+                    <span className="text-6xl font-black">₹2,499</span>
                     <span className="text-xl text-muted-foreground font-bold">/mo</span>
                   </div>
                 </CardHeader>
@@ -250,7 +250,7 @@ export default function UpgradePage() {
                     <CardDescription className="text-base font-medium">Scale your empire.</CardDescription>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-6xl font-black">$99</span>
+                    <span className="text-6xl font-black">₹8,999</span>
                     <span className="text-xl text-muted-foreground font-bold">/mo</span>
                   </div>
                 </CardHeader>
