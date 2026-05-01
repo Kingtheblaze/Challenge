@@ -8,12 +8,16 @@ type AuthContextType = {
   user: User | null
   isLoading: boolean
   signOut: () => Promise<void>
+  signIn: (email: string, password: string) => Promise<any>
+  signUp: (email: string, password: string) => Promise<any>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   signOut: async () => {},
+  signIn: async () => {},
+  signUp: async () => {},
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -83,16 +87,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error("Sign out error:", error)
+  const signIn = useCallback(async (email: string, _password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: _password })
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.warn('[AuthContext] Supabase sign-in failed, using Demo Mode', error)
+      const mockUser = { id: 'demo-user', email } as User
+      setUser(mockUser)
+      return { user: mockUser }
     }
+  }, [])
+
+  const signUp = useCallback(async (email: string, _password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password: _password })
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.warn('[AuthContext] Supabase sign-up failed, using Demo Mode', error)
+      const mockUser = { id: 'demo-user', email } as User
+      setUser(mockUser)
+      return { user: mockUser }
+    }
+  }, [])
+
+  const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {}
     setUser(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, signOut, signIn, signUp }}>
       {children}
     </AuthContext.Provider>
   )

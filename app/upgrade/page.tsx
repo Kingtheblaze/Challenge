@@ -27,9 +27,7 @@ export default function UpgradePage() {
 
     setIsProcessing(true)
     try {
-      await upgradeToPro()
-      toast.success("Welcome to Pro! You now have access to all features.")
-      router.push("/upgrade/success")
+      router.push("/checkout")
     } catch (error) {
       toast.error("Failed to upgrade. Please try again.")
       console.error(error)

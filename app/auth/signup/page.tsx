@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { supabase } from "@/lib/supabase/client"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,7 +21,7 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const [returnUrl, setReturnUrl] = useState<string | null>(null)
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading, signUp } = useAuth()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -56,15 +55,11 @@ export default function SignUpPage() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      })
-      if (error) throw error
-      router.push(returnUrl || "/")
+      const data = await signUp(email, password)
+      if (data?.user) {
+        toast.success("Profile Initialized! Welcome to Go Viral.")
+        router.push(returnUrl || "/analyzer")
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
