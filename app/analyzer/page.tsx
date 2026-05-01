@@ -361,6 +361,9 @@ export default function AnalyzerPage() {
                   
                   <div className="flex-1 space-y-6 text-center md:text-left">
                     <div className="space-y-2">
+                      <div className="text-sm font-black uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" /> Report for: {title || "Untitled Content"}
+                      </div>
                       <h2 className="text-4xl font-black tracking-tighter italic">Viral Apex Detected</h2>
                       <p className="text-lg text-muted-foreground font-medium">Your content has matched {dynamicResults?.score || 0}% of top-performing {platform} signals in your niche.</p>
                     </div>
