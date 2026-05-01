@@ -33,53 +33,37 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   refresh: async () => {},
 })
 
+import { localDB } from "@/lib/db"
+
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchSubscription = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!user) {
-        setSubscription(null)
-        setIsLoading(false)
-        return
-      }
-
-      // Try to get existing subscription
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .single()
-
-      if (error && error.code !== "PGRST116") {
-        // PGRST116 = no rows returned (user doesn't have subscription yet)
-        console.error("[SubscriptionContext] Fetch error:", error)
-      }
-
-      if (data) {
-        setSubscription(data as Subscription)
+      const localUser = localDB.getCurrentUser()
+      
+      if (localUser) {
+        setSubscription({
+          id: "local-sub",
+          user_id: localUser.id,
+          tier: localUser.isPro ? "pro" : "free",
+          created_at: localUser.created_at,
+          updated_at: new Date().toISOString()
+        } as Subscription)
       } else {
-        // Create default free subscription for new users
-        const { data: newSub, error: insertError } = await supabase
-          .from("subscriptions")
-          .insert({ user_id: user.id, tier: "free" })
-          .select()
-          .single()
-
-        if (insertError) {
-          console.error("[SubscriptionContext] Insert error:", insertError)
+        // Try Supabase if local fails
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data } = await supabase.from("subscriptions").select("*").eq("user_id", user.id).single()
+          if (data) setSubscription(data as Subscription)
         } else {
-          setSubscription(newSub as Subscription)
+          setSubscription(null)
         }
       }
-
-      setIsLoading(false)
     } catch (error) {
       console.error("[SubscriptionContext] Fetch error:", error)
-      setSubscription(null)
+    } finally {
       setIsLoading(false)
     }
   }, [])
@@ -90,57 +74,37 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   }, [fetchSubscription])
 
   const upgradeToPro = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { error } = await supabase
-      .from("subscriptions")
-      .update({ tier: "pro" })
-      .eq("user_id", user.id)
-
-    if (error) {
-      console.error("[SubscriptionContext] Upgrade error:", error)
-      throw error
+    const localUser = localDB.getCurrentUser()
+    if (localUser) {
+      localDB.upgrade(localUser.id)
+      await refresh()
+      return
     }
 
+    // Supabase fallback
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from("subscriptions").update({ tier: "pro" }).eq("user_id", user.id)
     await refresh()
   }, [refresh])
 
   const downgradeToFree = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { error } = await supabase
-      .from("subscriptions")
-      .update({ tier: "free" })
-      .eq("user_id", user.id)
-
-    if (error) {
-      console.error("[SubscriptionContext] Downgrade error:", error)
-      throw error
+    const localUser = localDB.getCurrentUser()
+    if (localUser) {
+      localDB.downgrade(localUser.id)
+      await refresh()
+      return
     }
 
+    // Supabase fallback
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from("subscriptions").update({ tier: "free" }).eq("user_id", user.id)
     await refresh()
   }, [refresh])
 
   useEffect(() => {
     fetchSubscription()
-
-    // Listen for auth changes
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
-          await fetchSubscription()
-        } else {
-          setSubscription(null)
-          setIsLoading(false)
-        }
-      }
-    )
-
-    return () => {
-      authSubscription.unsubscribe()
-    }
   }, [fetchSubscription])
 
   // Compute derived values

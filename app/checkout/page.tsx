@@ -56,9 +56,12 @@ export default function CheckoutPage() {
 
             <Card className="rounded-[2.5rem] glass-card border-white/5 overflow-hidden">
               <CardHeader className="p-10 border-b border-white/5 bg-white/5">
-                <CardTitle className="text-2xl font-black flex items-center gap-3">
-                  <Sparkles className="w-6 h-6 text-primary" /> Order Summary
-                </CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-2xl font-black flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-primary" /> Order Summary
+                  </CardTitle>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Merchant: Go Viral AI Platform</span>
+                </div>
               </CardHeader>
               <CardContent className="p-10 space-y-6">
                 <div className="flex justify-between items-center py-4 border-b border-white/5">

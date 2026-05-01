@@ -20,100 +20,66 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => {},
 })
 
+import { localDB } from "@/lib/db"
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Safety timeout - ensure loading state doesn't hang forever
+    // Safety timeout
     const timeout = setTimeout(() => {
-      console.warn('[AuthContext] Loading timeout - forcing isLoading to false')
       setIsLoading(false)
-    }, 10000) // 10 second timeout
+    }, 5000)
 
-    // Get initial user
     const init = async () => {
       try {
-        console.log('[AuthContext] Initializing...')
-
-        // First check if there's a session (won't throw if no session exists)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-
-        if (sessionError) {
-          console.error('[AuthContext] Error getting session:', sessionError)
-          setUser(null)
-          setIsLoading(false)
-          return
-        }
-
-        // Only try to get user if we have a session
-        if (session) {
-          const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-          if (userError) {
-            console.error('[AuthContext] Error getting user:', userError)
-            setUser(null)
-          } else {
-            console.log('[AuthContext] User:', user ? user.id : 'none')
-            setUser(user)
-          }
+        const savedUser = localDB.getCurrentUser()
+        if (savedUser) {
+          setUser(savedUser as any)
         } else {
-          console.log('[AuthContext] No session found')
-          setUser(null)
+          // Fallback to Supabase check if needed, but for now prioritize local
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) setUser(session.user)
         }
-
-        setIsLoading(false)
-      } catch (error) {
-        console.error('[AuthContext] Init error:', error)
-        setUser(null)
-        setIsLoading(false)
-      }
+      } catch (e) {}
+      setIsLoading(false)
     }
 
     init()
+    return () => clearTimeout(timeout)
+  }, [])
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('[AuthContext] Auth state changed:', session?.user ? session.user.id : 'logged out')
-      setUser(session?.user ?? null)
-      setIsLoading(false)
-    })
-
-    return () => {
-      clearTimeout(timeout)
-      subscription.unsubscribe()
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const user = localDB.login(email, password)
+      setUser(user as any)
+      return { user }
+    } catch (error) {
+      // Fallback to Supabase
+      const { data, error: sbError } = await supabase.auth.signInWithPassword({ email, password })
+      if (sbError) throw error // Throw the local error if both fail
+      setUser(data.user)
+      return data
     }
   }, [])
 
-  const signIn = useCallback(async (email: string, _password: string) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password: _password })
-      if (error) throw error
-      return data
+      const user = localDB.signUp(email, password)
+      setUser(user as any)
+      return { user }
     } catch (error) {
-      console.warn('[AuthContext] Supabase sign-in failed, using Demo Mode', error)
-      const mockUser = { id: 'demo-user', email } as User
-      setUser(mockUser)
-      return { user: mockUser }
-    }
-  }, [])
-
-  const signUp = useCallback(async (email: string, _password: string) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({ email, password: _password })
-      if (error) throw error
+      // Fallback to Supabase
+      const { data, error: sbError } = await supabase.auth.signUp({ email, password })
+      if (sbError) throw error
+      setUser(data.user)
       return data
-    } catch (error) {
-      console.warn('[AuthContext] Supabase sign-up failed, using Demo Mode', error)
-      const mockUser = { id: 'demo-user', email } as User
-      setUser(mockUser)
-      return { user: mockUser }
     }
   }, [])
 
   const signOut = useCallback(async () => {
+    localDB.logout()
     try {
       await supabase.auth.signOut()
     } catch (e) {}
