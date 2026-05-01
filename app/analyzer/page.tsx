@@ -45,14 +45,52 @@ export default function AnalyzerPage() {
   const [url, setUrl] = useState("")
   const [title, setTitle] = useState("")
   const [activeTab, setActiveTab] = useState("upload")
+  const [platform, setPlatform] = useState("tiktok")
 
   const steps = [
     "Extracting video data...",
-    "Scanning visual hooks...",
+    `Dissecting ${platform} specific patterns...`,
     "Processing title engagement...",
-    "Evaluating URL meta-data...",
+    "Scanning visual hooks...",
     "Generating virality report..."
   ]
+
+  // Mock result data generation
+  const [dynamicResults, setDynamicResults] = useState<any>(null)
+
+  const generateResults = () => {
+    const isUrl = activeTab === "url"
+    const hasLongTitle = title.length > 20
+    
+    const platformIntel: any = {
+      tiktok: { hook: "Sound-sync alignment", growth: "High potential in 'For You' feed", advice: "Use trending audio overlays." },
+      reels: { hook: "Visual transition speed", growth: "Strong Instagram Explore reach", advice: "Ensure 4:5 safe zones are clear." },
+      shorts: { hook: "First 3-second retention", growth: "YouTube Algorithm favoritism", advice: "Loop the video for 'infinite' watch time." },
+      video: { hook: "Storytelling arc", growth: "Steady long-term growth", advice: "Optimize thumbnail contrast." }
+    }
+
+    const intel = platformIntel[platform]
+
+    setDynamicResults({
+      score: 85 + Math.floor(Math.random() * 10),
+      metrics: [
+        { label: "Hook Strength", value: hasLongTitle ? 92 : 78, icon: Zap },
+        { label: "Trend Velocity", value: isUrl ? 95 : 82, icon: Flame },
+        { label: "Retention Floor", value: 88, icon: Timer },
+        { label: "Viral Probability", value: 91, icon: BarChart3 }
+      ],
+      wins: [
+        `Elite ${intel.hook} detected.`,
+        "Color grading matches high-performing benchmarks.",
+        `Strong alignment with ${platform} engagement signals.`
+      ],
+      fixes: [
+        intel.advice,
+        hasLongTitle ? "Shorten title to increase curiosity." : "Add more power words to your title.",
+        "Increase contrast in the first 2 seconds."
+      ]
+    })
+  }
 
   useEffect(() => {
     let interval: any
@@ -62,16 +100,16 @@ export default function AnalyzerPage() {
       }, 800)
     } else if (step === steps.length) {
       setTimeout(() => {
+        generateResults()
         setIsAnalyzing(false)
         setShowResults(true)
-        setScore(88)
         toast.success("Analysis Complete!", {
-          description: "Your content has elite viral potential."
+          description: `Personalized report for your ${platform} content is ready.`
         })
       }, 500)
     }
     return () => clearInterval(interval)
-  }, [isAnalyzing, step])
+  }, [isAnalyzing, step, platform])
 
   const handleAnalyze = () => {
     if (!title) {
@@ -127,7 +165,7 @@ export default function AnalyzerPage() {
               transition={{ delay: 0.2 }}
               className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium"
             >
-              Enter your content details below for a deep-space virality scan.
+              Select your platform and enter details for a custom-tuned virality scan.
             </motion.p>
           </div>
 
@@ -140,7 +178,27 @@ export default function AnalyzerPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="grid lg:grid-cols-3 gap-10 items-start"
               >
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-2 space-y-10">
+                  {/* Platform Selection */}
+                  <div className="space-y-4">
+                    <Label className="text-sm font-black uppercase tracking-widest text-primary">Target Platform</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {["tiktok", "reels", "shorts", "video"].map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setPlatform(p)}
+                          className={`p-4 rounded-2xl border-2 transition-all font-black uppercase tracking-widest text-[10px] ${
+                            platform === p 
+                              ? "bg-primary border-primary text-white shadow-lg shadow-primary/30" 
+                              : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Title Input */}
                   <div className="space-y-4">
                     <Label htmlFor="title" className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
@@ -277,161 +335,126 @@ export default function AnalyzerPage() {
             ) : (
               <motion.div 
                 key="results"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-12"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="space-y-10"
               >
-                <div className="grid md:grid-cols-3 gap-10">
-                  {/* Main Score Card */}
-                  <Card className="md:col-span-1 glass-card border-primary/30 shadow-[0_0_50px_rgba(var(--primary-rgb),0.15)] rounded-[3rem] overflow-hidden relative group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50" />
-                    <CardHeader className="text-center relative z-10 pt-10">
-                      <CardTitle className="text-sm font-black uppercase tracking-[0.3em] text-primary">Viral Probability</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center pb-12 relative z-10">
-                      <div className="relative w-56 h-56 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90">
-                          <circle cx="112" cy="112" r="95" fill="none" stroke="currentColor" strokeWidth="15" className="text-white/5" />
-                          <motion.circle
-                            cx="112" cy="112" r="95" fill="none" stroke="currentColor" strokeWidth="15"
-                            strokeDasharray={596.6}
-                            initial={{ strokeDashoffset: 596.6 }}
-                            animate={{ strokeDashoffset: 596.6 * (1 - score / 100) }}
-                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                            strokeLinecap="round"
-                            className="text-primary"
-                          />
-                        </svg>
-                        <div className="absolute flex flex-col items-center">
-                          <motion.span 
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 1, type: "spring" }}
-                            className="text-8xl font-black tracking-tighter"
-                          >
-                            {score}
-                          </motion.span>
-                          <span className="text-xs font-black tracking-[0.4em] text-primary/80">PREMIUM</span>
-                        </div>
-                      </div>
-                      <div className="mt-8 px-6 text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-500 text-xs font-black uppercase tracking-widest mb-4">
-                          <ShieldCheck className="w-4 h-4" /> High Confidence
-                        </div>
-                        <p className="text-muted-foreground font-medium text-lg leading-relaxed">
-                          Your content aligns with 94% of top-performing videos in your category.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Breakdown Cards */}
-                  <div className="md:col-span-2 grid sm:grid-cols-2 gap-8">
-                    {[
-                      { icon: Timer, label: "Hook Retention", value: 96, color: "text-cyan-500", desc: "First 2.4s are visually arresting." },
-                      { icon: MessageCircle, label: "CTA Strength", value: 72, color: "text-purple-500", desc: "Solid CTA, but try positioning it earlier." },
-                      { icon: Eye, label: "Visual Clarity", value: 89, color: "text-emerald-500", desc: "Excellent contrast and subject focus." },
-                      { icon: Flame, label: "Trend Velocity", value: 91, color: "text-orange-500", desc: "Perfectly timed with #trending audio." },
-                    ].map((stat, i) => (
-                      <motion.div
-                        key={stat.label}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6 + i * 0.1 }}
-                      >
-                        <Card className="glass-card h-full hover:bg-white/[0.07] transition-all border-white/5 rounded-[2rem]">
-                          <CardContent className="p-8 space-y-6">
-                            <div className="flex justify-between items-center">
-                              <div className={`p-4 rounded-2xl bg-white/5 ${stat.color} border border-white/5 shadow-xl`}>
-                                <stat.icon className="w-6 h-6" />
-                              </div>
-                              <span className="text-3xl font-black">{stat.value}%</span>
-                            </div>
-                            <div className="space-y-2">
-                              <h4 className="text-lg font-black tracking-tight">{stat.label}</h4>
-                              <Progress value={stat.value} className="h-3 rounded-full bg-white/5" />
-                              <p className="text-sm text-muted-foreground font-medium pt-2">{stat.desc}</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
+                {/* Result Header */}
+                <div className="flex flex-col md:flex-row gap-10 items-center bg-card/40 backdrop-blur-xl border border-white/5 p-12 rounded-[3rem]">
+                  <div className="relative w-48 h-48 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90">
+                      <circle cx="96" cy="96" r="88" fill="none" stroke="currentColor" strokeWidth="12" className="text-white/5" />
+                      <motion.circle 
+                        cx="96" cy="96" r="88" fill="none" stroke="currentColor" strokeWidth="12" 
+                        strokeDasharray="552.92"
+                        initial={{ strokeDashoffset: 552.92 }}
+                        animate={{ strokeDashoffset: 552.92 - (552.92 * (dynamicResults?.score || 0)) / 100 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className="text-primary"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-6xl font-black tracking-tighter">{dynamicResults?.score || 0}</span>
+                      <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Virality</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 space-y-6 text-center md:text-left">
+                    <div className="space-y-2">
+                      <h2 className="text-4xl font-black tracking-tighter italic">Viral Apex Detected</h2>
+                      <p className="text-lg text-muted-foreground font-medium">Your content has matched {dynamicResults?.score || 0}% of top-performing {platform} signals in your niche.</p>
+                    </div>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                      <div className="px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-black uppercase tracking-widest">High Retention</div>
+                      <div className="px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-widest">Elite Hook</div>
+                      <div className="px-4 py-2 rounded-xl bg-accent/10 border border-accent/20 text-accent text-xs font-black uppercase tracking-widest">Ready to Scale</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* AI Insights */}
-                <div className="grid lg:grid-cols-2 gap-10 pt-8">
-                   <Card className="rounded-[2.5rem] glass-card border-green-500/10">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-3 text-2xl font-black">
-                        <CheckCircle2 className="w-7 h-7 text-green-500" />
-                        Winning Attributes
+                {/* Metrics Grid */}
+                <div className="grid md:grid-cols-4 gap-6">
+                  {dynamicResults?.metrics.map((metric: any, i: number) => (
+                    <motion.div 
+                      key={metric.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="p-8 rounded-[2rem] glass-card border-white/5 space-y-4"
+                    >
+                      <metric.icon className="w-8 h-8 text-primary" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">{metric.label}</p>
+                        <p className="text-3xl font-black">{metric.value}%</p>
+                      </div>
+                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${metric.value}%` }}
+                          transition={{ duration: 1.5, delay: 0.5 }}
+                          className="h-full bg-primary"
+                        />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-10">
+                  {/* Wins */}
+                  <Card className="rounded-[2.5rem] glass-card border-white/5 overflow-hidden">
+                    <CardHeader className="p-10 border-b border-white/5 bg-white/5">
+                      <CardTitle className="text-2xl font-black flex items-center gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-green-500" /> Winning Attributes
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-8 space-y-4">
-                      {[
-                        "Elite frame composition: 1/3 grid rule followed perfectly.",
-                        "Dynamic lighting: High subject-to-background contrast found.",
-                        "Audio sync: Key visual cuts occur exactly on beat drops.",
-                        "Text accessibility: High readability score for mobile screens."
-                      ].map((item, i) => (
-                        <motion.div 
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 1.2 + i * 0.1 }}
-                          key={i} 
-                          className="flex gap-4 p-4 rounded-2xl bg-green-500/5 border border-green-500/10 text-sm font-bold"
-                        >
-                          <div className="mt-1 w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                          {item}
-                        </motion.div>
+                    <CardContent className="p-10 space-y-6">
+                      {dynamicResults?.wins.map((win: string, i: number) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-green-500/5 border border-green-500/10 text-sm font-bold items-start leading-relaxed">
+                          <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                          {win}
+                        </div>
                       ))}
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-[2.5rem] glass-card border-orange-500/10">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-3 text-2xl font-black">
-                        <AlertCircle className="w-7 h-7 text-orange-500" />
-                        Critical Optimizations
+                  {/* Fixes */}
+                  <Card className="rounded-[2.5rem] glass-card border-white/5 overflow-hidden">
+                    <CardHeader className="p-10 border-b border-white/5 bg-white/5">
+                      <CardTitle className="text-2xl font-black flex items-center gap-3">
+                        <AlertCircle className="w-6 h-6 text-primary" /> Critical Optimizations
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-8 space-y-4">
-                      {[
-                        "Move the main caption 20px higher to avoid UI occlusion.",
-                        "Brighten the final 5 seconds to maintain viewer energy.",
-                        "Use high-velocity transitions between 00:04 and 00:08.",
-                        "Incorporate the 'Viral Red' highlight in your first text overlay."
-                      ].map((item, i) => (
-                        <motion.div 
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 1.2 + i * 0.1 }}
-                          key={i} 
-                          className="flex gap-4 p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 text-sm font-bold"
-                        >
-                          <div className="mt-1 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
-                          {item}
-                        </motion.div>
+                    <CardContent className="p-10 space-y-6">
+                      {dynamicResults?.fixes.map((fix: string, i: number) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10 text-sm font-bold items-start leading-relaxed">
+                          <AlertCircle className="w-5 h-5 text-primary shrink-0" />
+                          {fix}
+                        </div>
                       ))}
                     </CardContent>
                   </Card>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-center gap-6 pt-12">
-                  <Button size="xl" className="rounded-2xl px-12 py-8 font-black gap-3 shadow-2xl shadow-primary/30" onClick={() => setShowResults(false)}>
-                    <RefreshCw className="w-6 h-6" />
-                    New Analysis
-                  </Button>
-                  <Button size="xl" variant="outline" className="rounded-2xl px-12 py-8 font-black gap-3 glass-card border-white/10" asChild>
+                <div className="flex flex-col md:flex-row gap-6 pt-10">
+                  <Button size="xl" className="flex-1 py-10 rounded-3xl font-black text-xl shadow-2xl shadow-primary/30 group" asChild>
                     <Link href="/upgrade">
-                      <Sparkles className="w-6 h-6 text-primary" />
-                      Get Pro Reports
+                      Master the Algorithm
+                      <Sparkles className="w-6 h-6 ml-3 group-hover:scale-125 transition-transform" />
                     </Link>
+                  </Button>
+                  <Button 
+                    size="xl" 
+                    variant="outline" 
+                    className="flex-1 py-10 rounded-3xl font-black text-xl glass-card border-white/10 hover:bg-white/5 transition-all"
+                    onClick={() => { setShowResults(false); setStep(0); }}
+                  >
+                    Analyze Another Video
+                    <RefreshCw className="w-6 h-6 ml-3" />
                   </Button>
                 </div>
               </motion.div>
-            )}
+            )
+}
           </AnimatePresence>
         </div>
       </main>
