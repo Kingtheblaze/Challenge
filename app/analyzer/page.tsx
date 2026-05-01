@@ -24,21 +24,33 @@ import {
   Search,
   RefreshCw,
   Eye,
-  Activity
+  Activity,
+  Link as LinkIcon,
+  Type,
+  FileVideo
 } from "lucide-react"
 import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AnalyzerPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [score, setScore] = useState(0)
   const [step, setStep] = useState(0)
+  
+  // Input states
+  const [file, setFile] = useState<File | null>(null)
+  const [url, setUrl] = useState("")
+  const [title, setTitle] = useState("")
+  const [activeTab, setActiveTab] = useState("upload")
 
   const steps = [
-    "Extracting frames...",
-    "Analyzing hook sequence...",
-    "Evaluating caption engagement...",
-    "Comparing with trending content...",
+    "Extracting video data...",
+    "Scanning visual hooks...",
+    "Processing title engagement...",
+    "Evaluating URL meta-data...",
     "Generating virality report..."
   ]
 
@@ -62,9 +74,29 @@ export default function AnalyzerPage() {
   }, [isAnalyzing, step])
 
   const handleAnalyze = () => {
+    if (!title) {
+      toast.error("Please enter a video title")
+      return
+    }
+    if (activeTab === "upload" && !file) {
+      toast.error("Please upload a video file")
+      return
+    }
+    if (activeTab === "url" && !url) {
+      toast.error("Please enter a video URL")
+      return
+    }
+
     setStep(0)
     setIsAnalyzing(true)
     setShowResults(false)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0])
+      toast.success(`Selected: ${e.target.files[0].name}`)
+    }
   }
 
   return (
@@ -95,7 +127,7 @@ export default function AnalyzerPage() {
               transition={{ delay: 0.2 }}
               className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium"
             >
-              Harness the power of billion-parameter models to dissect your content and dominate social feeds.
+              Enter your content details below for a deep-space virality scan.
             </motion.p>
           </div>
 
@@ -108,22 +140,71 @@ export default function AnalyzerPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="grid lg:grid-cols-3 gap-10 items-start"
               >
-                <Card className="lg:col-span-2 border-dashed border-2 bg-card/20 hover:bg-primary/5 transition-all cursor-pointer group rounded-[2.5rem] overflow-hidden">
-                  <CardContent className="p-20 flex flex-col items-center justify-center space-y-8 text-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <motion.div 
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center relative z-10"
-                    >
-                      <Upload className="w-12 h-12 text-primary" />
-                    </motion.div>
-                    <div className="space-y-3 relative z-10">
-                      <h3 className="text-3xl font-black tracking-tight">Drop your masterpiece</h3>
-                      <p className="text-lg text-muted-foreground font-medium">MP4, MOV or WebM. Max 1GB.</p>
-                    </div>
-                    <Button size="xl" variant="secondary" className="px-12 rounded-2xl font-bold relative z-10">Select File</Button>
-                  </CardContent>
-                </Card>
+                <div className="lg:col-span-2 space-y-8">
+                  {/* Title Input */}
+                  <div className="space-y-4">
+                    <Label htmlFor="title" className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                      <Type className="w-4 h-4" /> Video Title
+                    </Label>
+                    <Input 
+                      id="title"
+                      placeholder="Enter a catchy title for your video..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="h-16 rounded-2xl bg-white/5 border-white/10 px-8 text-xl font-bold focus:ring-primary/50"
+                    />
+                  </div>
+
+                  {/* Multi-modal Tabs */}
+                  <Tabs defaultValue="upload" onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 h-16 rounded-2xl bg-white/5 p-1 border border-white/10">
+                      <TabsTrigger value="upload" className="rounded-xl font-black uppercase tracking-widest text-xs data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                        <FileVideo className="w-4 h-4 mr-2" /> Upload Video
+                      </TabsTrigger>
+                      <TabsTrigger value="url" className="rounded-xl font-black uppercase tracking-widest text-xs data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                        <LinkIcon className="w-4 h-4 mr-2" /> Paste URL
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="upload" className="mt-6">
+                      <Card className="border-dashed border-2 bg-card/20 hover:bg-primary/5 transition-all cursor-pointer group rounded-[2.5rem] overflow-hidden">
+                        <CardContent className="p-16 flex flex-col items-center justify-center space-y-6 text-center relative">
+                          <input 
+                            type="file" 
+                            accept="video/*" 
+                            className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                            onChange={handleFileChange}
+                          />
+                          <motion.div 
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center relative z-10"
+                          >
+                            <Upload className={`w-10 h-10 ${file ? 'text-green-500' : 'text-primary'}`} />
+                          </motion.div>
+                          <div className="space-y-2 relative z-10">
+                            <h3 className="text-2xl font-black tracking-tight">
+                              {file ? file.name : "Select your video file"}
+                            </h3>
+                            <p className="text-sm text-muted-foreground font-medium">MP4, MOV or WebM. Max 1GB.</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="url" className="mt-6">
+                      <div className="space-y-4">
+                        <Label htmlFor="url" className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                          <LinkIcon className="w-4 h-4" /> Content URL
+                        </Label>
+                        <Input 
+                          id="url"
+                          placeholder="Paste TikTok, Reels, or YouTube URL..."
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          className="h-16 rounded-2xl bg-white/5 border-white/10 px-8 text-xl font-bold focus:ring-primary/50"
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
 
                 <div className="space-y-8">
                   <Card className="rounded-[2rem] glass-card border-white/5">
