@@ -1,24 +1,20 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
-import { SubscriptionProvider } from "@/contexts/subscription-context"
-import { AuthProvider } from "@/contexts/auth-context"
-import { Footer } from "@/components/footer"
-import { Toaster } from "sonner"
+import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
+import { AuthProvider } from "@/contexts/auth-context"
+import { SubscriptionProvider } from "@/contexts/subscription-context"
+import { Toaster } from "@/components/ui/sonner"
 
-const geist = Geist({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
 
 export const metadata: Metadata = {
-  title: "8x Hiring Template",
-  description: "A SaaS starter template for frontend engineering assessments.",
-  icons: {
-    icon: [
-      { url: "/favicon-32x32.png" },
-      { url: "/favicon-16x16.png", sizes: "16x16" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  title: "Go Viral | AI-Powered Content Virality Analyzer",
+  description: "Predict your content's success with AI. Analyze hooks, captions, and trends to maximize your reach on TikTok, Reels, and YouTube Shorts.",
+  keywords: ["AI", "Virality", "Content Creator", "TikTok", "Reels", "Shorts", "Social Media Marketing"],
+  authors: [{ name: "Go Viral AI Team" }],
+  viewport: "width=device-width, initial-scale=1",
 }
 
 export default function RootLayout({
@@ -27,17 +23,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geist.className} antialiased flex flex-col min-h-screen`}>
+    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased selection:bg-primary/30 selection:text-primary`}>
         <AuthProvider>
           <SubscriptionProvider>
-            <div className="flex-1 flex flex-col">
-              {children}
-            </div>
-            <Footer />
+            {children}
+            <Toaster position="top-center" expand={true} richColors />
           </SubscriptionProvider>
         </AuthProvider>
-        <Toaster position="top-center" />
       </body>
     </html>
   )

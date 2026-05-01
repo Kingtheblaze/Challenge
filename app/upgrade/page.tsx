@@ -4,14 +4,17 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
+import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Sparkles, Zap, Shield, TrendingUp, Search, MessageSquare } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Check, Zap, Sparkles, Star, Shield, Rocket, ArrowRight, TrendingUp, Search, MessageSquare, CheckCircle } from "lucide-react"
 import { useSubscription } from "@/contexts/subscription-context"
 import { useAuth } from "@/contexts/auth-context"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
 
 export default function UpgradePage() {
-  const { isPro, tier, upgradeToPro, downgradeToFree, isLoading: subLoading } = useSubscription()
+  const { isPro, upgradeToPro, downgradeToFree, isLoading: subLoading } = useSubscription()
   const { user, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -48,195 +51,240 @@ export default function UpgradePage() {
     }
   }
 
-  // Show current subscription if Pro
   if (isPro && !subLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
         <Navigation />
-        <div className="flex items-center justify-center px-4 py-16 min-h-[calc(100vh-80px)]">
-          <div className="max-w-2xl w-full">
-            {/* Header */}
-            <div className="text-center mb-12">
-              <div className="mb-6 flex justify-center">
-                <CheckCircle className="w-16 h-16 text-primary" />
-              </div>
-              <h1 className="text-5xl font-light tracking-tight mb-4">
-                You're a <span className="font-semibold text-primary">Pro</span> Creator
+        <main className="container mx-auto px-6 py-24">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-12 space-y-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex justify-center"
+              >
+                <div className="p-6 rounded-full bg-primary/10 border border-primary/20">
+                  <CheckCircle className="w-16 h-16 text-primary" />
+                </div>
+              </motion.div>
+              <h1 className="text-5xl font-black tracking-tighter">
+                You're a <span className="text-gradient">Pro</span> Creator
               </h1>
-              <p className="text-xl text-muted-foreground font-light">
-                Thank you for upgrading! You have unlimited access to Go Viral's AI models.
+              <p className="text-xl text-muted-foreground font-medium">
+                Thank you for being part of the elite circle. You have full access to our neural models.
               </p>
             </div>
 
-            {/* Current Plan Card */}
-            <div className="border-2 border-primary rounded-2xl p-8 bg-card/50 mb-8 shadow-xl shadow-primary/5">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="text-sm text-primary font-medium mb-1">Current Plan</div>
-                  <div className="text-2xl font-bold flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Pro Creator Plan
+            <Card className="rounded-[2.5rem] glass-card border-primary/50 shadow-[0_0_50px_rgba(var(--primary-rgb),0.1)] overflow-hidden">
+              <CardHeader className="p-10 border-b border-white/5">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-xs font-black uppercase tracking-widest text-primary">Current Status</p>
+                    <CardTitle className="text-3xl font-black flex items-center gap-3">
+                      <TrendingUp className="w-6 h-6" />
+                      Pro Creator Plan
+                    </CardTitle>
+                  </div>
+                  <div className="px-4 py-2 rounded-full bg-green-500/10 text-green-500 text-xs font-black uppercase tracking-widest">
+                    Active
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground mb-1">Status</div>
-                  <div className="font-medium text-green-500">Active</div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-border">
-                <h4 className="text-sm font-medium mb-3">Your Pro benefits:</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Unlimited virality analyses
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Deep hook & pacing analysis
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Competitor content comparison
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    Priority processing for video uploads
-                  </li>
+              </CardHeader>
+              <CardContent className="p-10 space-y-6">
+                <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Premium Benefits Active:</h4>
+                <ul className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    "Unlimited Analyses",
+                    "Elite Hook Breakdown",
+                    "Competitor Intel",
+                    "Smart Caption Gen",
+                    "Priority Processing",
+                    "Direct Support"
+                  ].map(benefit => (
+                    <li key={benefit} className="flex items-center gap-3 text-sm font-bold">
+                      <Check className="w-4 h-4 text-primary" />
+                      {benefit}
+                    </li>
+                  ))}
                 </ul>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link href="/analyzer">Go to Analyzer</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleDowngrade}
-                disabled={isProcessing}
-              >
-                {isProcessing ? "Processing..." : "Downgrade to Free"}
-              </Button>
-            </div>
+              </CardContent>
+              <CardFooter className="p-10 bg-white/5 flex flex-col sm:flex-row gap-4">
+                <Button size="xl" className="flex-1 rounded-2xl font-black py-8" asChild>
+                  <Link href="/analyzer">Back to Analyzer</Link>
+                </Button>
+                <Button
+                  size="xl"
+                  variant="outline"
+                  className="flex-1 rounded-2xl font-black py-8 glass-card border-white/10 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  onClick={handleDowngrade}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? "Processing..." : "Downgrade Plan"}
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
-        </div>
+        </main>
+        <Footer />
       </div>
     )
   }
 
-  // Show pricing for free users
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
       <Navigation />
-      <div className="flex items-center justify-center px-4 py-16 min-h-[calc(100vh-80px)]">
-        <div className="max-w-5xl w-full">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold tracking-tight mb-4">
-              Scale Your <span className="text-primary italic">Reach</span>
-            </h1>
-            <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto">
-              Choose the plan that's right for your content strategy. Unlock the full power of Go Viral.
-            </p>
+      
+      <main className="container mx-auto px-6 py-24">
+        <div className="max-w-6xl mx-auto space-y-20">
+          <div className="text-center space-y-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-black uppercase tracking-widest"
+            >
+              <Star className="w-4 h-4 fill-primary" />
+              Scale Your Reach
+            </motion.div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-8xl font-black tracking-tighter"
+            >
+              Dominate the <span className="text-gradient">Algorithm</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium"
+            >
+              Choose the plan that fits your ambition. From solo creators to global agencies.
+            </motion.p>
           </div>
 
-          {/* Pricing Cards */}
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {/* Free Plan */}
-            <div className="border border-border rounded-[2rem] p-10 bg-card/50 transition-all hover:bg-card/80">
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-muted-foreground mb-4">Starter</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-black">$0</span>
-                  <span className="text-muted-foreground font-medium">/month</span>
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-10">
-                <li className="flex items-center gap-3 text-muted-foreground font-medium">
-                  <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
-                  3 analyses per month
-                </li>
-                <li className="flex items-center gap-3 text-muted-foreground font-medium">
-                  <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
-                  Basic virality score
-                </li>
-                <li className="flex items-center gap-3 text-muted-foreground font-medium">
-                  <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
-                  Standard analysis speed
-                </li>
-                <li className="flex items-center gap-3 text-muted-foreground font-medium opacity-50">
-                  <Shield className="w-5 h-5" />
-                  No hook analysis
-                </li>
-              </ul>
-
-              <Button variant="outline" className="w-full py-6 rounded-xl" disabled>
-                Current Plan
-              </Button>
-            </div>
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Starter Plan */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="h-full flex flex-col rounded-[2.5rem] glass-card border-white/10 transition-all hover:scale-[1.02]">
+                <CardHeader className="p-10 space-y-4">
+                  <div className="space-y-1">
+                    <CardTitle className="text-3xl font-black tracking-tight text-muted-foreground">Starter</CardTitle>
+                    <CardDescription className="text-base font-medium">Perfect for testing the waters.</CardDescription>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-6xl font-black">$0</span>
+                    <span className="text-xl text-muted-foreground font-bold">/mo</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-10 flex-1 space-y-5">
+                  {[
+                    "3 Analyses per month",
+                    "Basic Virality Score",
+                    "Standard Speed",
+                    "Community Access"
+                  ].map(f => (
+                    <div key={f} className="flex items-center gap-4 text-sm font-bold opacity-70">
+                      <Check className="w-4 h-4 text-muted-foreground" /> {f}
+                    </div>
+                  ))}
+                </CardContent>
+                <CardFooter className="p-10">
+                  <Button size="xl" variant="outline" className="w-full py-8 text-lg font-black rounded-2xl cursor-default opacity-50">Current Plan</Button>
+                </CardFooter>
+              </Card>
+            </motion.div>
 
             {/* Pro Plan */}
-            <div className="relative border-2 border-primary rounded-[2rem] p-10 bg-card/80 shadow-2xl shadow-primary/10">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-6 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
-                Most Popular
-              </div>
-
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  Pro Creator
-                </h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-black">$29</span>
-                  <span className="text-muted-foreground font-medium">/month</span>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="relative">
+              <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-20">
+                <div className="bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-xl">
+                  Most Popular
                 </div>
               </div>
+              <Card className="h-full flex flex-col rounded-[2.5rem] glass-card border-primary/50 shadow-[0_0_40px_rgba(var(--primary-rgb),0.2)] transition-all hover:scale-[1.02]">
+                <CardHeader className="p-10 space-y-4">
+                  <div className="space-y-1">
+                    <CardTitle className="text-3xl font-black tracking-tight flex items-center gap-2">
+                      <Sparkles className="w-6 h-6 text-primary" />
+                      Pro Creator
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">Everything you need to dominate.</CardDescription>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-6xl font-black">$29</span>
+                    <span className="text-xl text-muted-foreground font-bold">/mo</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-10 flex-1 space-y-5">
+                  {[
+                    "Unlimited Analyses",
+                    "Elite Hook Breakdown",
+                    "Competitor Intel",
+                    "Viral Trend Alerts",
+                    "Priority Processing",
+                    "Custom AI Tuning"
+                  ].map(f => (
+                    <div key={f} className="flex items-center gap-4 text-sm font-bold">
+                      <Zap className="w-4 h-4 text-primary fill-primary/20" /> {f}
+                    </div>
+                  ))}
+                </CardContent>
+                <CardFooter className="p-10">
+                  <Button 
+                    size="xl" 
+                    className="w-full py-8 text-lg font-black rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/30 group"
+                    onClick={handleUpgrade}
+                    disabled={isProcessing || authLoading || subLoading}
+                  >
+                    {isProcessing ? "Processing..." : "Level Up Now"}
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            </motion.div>
 
-              <ul className="space-y-4 mb-10">
-                <li className="flex items-center gap-3 font-bold">
-                  <Zap className="w-5 h-5 text-primary fill-primary/20" />
-                  Unlimited virality analyses
-                </li>
-                <li className="flex items-center gap-3 font-bold">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  Deep hook & pacing analysis
-                </li>
-                <li className="flex items-center gap-3 font-bold">
-                  <Search className="w-5 h-5 text-primary" />
-                  Competitor content comparison
-                </li>
-                <li className="flex items-center gap-3 font-bold">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                  Smart caption & hashtag generator
-                </li>
-              </ul>
-
-              <Button
-                className="w-full py-6 rounded-xl text-lg font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-                size="lg"
-                onClick={handleUpgrade}
-                disabled={isProcessing || authLoading || subLoading}
-              >
-                {isProcessing ? "Processing..." : "Upgrade to Pro"}
-              </Button>
-            </div>
+            {/* Agency Plan */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+              <Card className="h-full flex flex-col rounded-[2.5rem] glass-card border-white/10 transition-all hover:scale-[1.02]">
+                <CardHeader className="p-10 space-y-4">
+                  <div className="space-y-1">
+                    <CardTitle className="text-3xl font-black tracking-tight text-white">Agency</CardTitle>
+                    <CardDescription className="text-base font-medium">Scale your empire.</CardDescription>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-6xl font-black">$99</span>
+                    <span className="text-xl text-muted-foreground font-bold">/mo</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-10 flex-1 space-y-5">
+                  {[
+                    "10 Team Seats",
+                    "API Access",
+                    "White-label Reports",
+                    "Dedicated Manager",
+                    "Bulk Analysis",
+                    "Early Feature Access"
+                  ].map(f => (
+                    <div key={f} className="flex items-center gap-4 text-sm font-bold">
+                      <Star className="w-4 h-4 text-accent" /> {f}
+                    </div>
+                  ))}
+                </CardContent>
+                <CardFooter className="p-10">
+                  <Button size="xl" variant="outline" className="w-full py-8 text-lg font-black rounded-2xl glass-card border-white/10">Contact Sales</Button>
+                </CardFooter>
+              </Card>
+            </motion.div>
           </div>
 
-          {/* Footer note */}
-          <div className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground font-medium">This is a demo. No real payment is processed.</p>
-            <div className="flex justify-center gap-8 opacity-50 grayscale">
-              <Shield className="w-8 h-8" />
-              <CheckCircle className="w-8 h-8" />
-              <Zap className="w-8 h-8" />
-            </div>
+          <div className="pt-10 flex flex-wrap justify-center gap-10 opacity-50 grayscale">
+            <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest"><Shield className="w-5 h-5" /> Secure Checkout</div>
+            <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest"><Rocket className="w-5 h-5" /> Instant Activation</div>
+            <div className="flex items-center gap-2 font-black text-sm uppercase tracking-widest"><Zap className="w-5 h-5" /> 24/7 Priority Support</div>
           </div>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   )
 }
