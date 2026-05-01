@@ -85,6 +85,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --animate-shimmer: shimmer 3s linear infinite;
+
+  @keyframes shimmer {
+    from { background-position: 0% 0%; }
+    to { background-position: 200% 0%; }
+  }
 }
 
 @layer utilities {
@@ -96,12 +103,6 @@
   }
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer;
-  }
-}
-
-@keyframes shimmer {
-  to {
-    background-position: 200% center;
   }
 }
 
